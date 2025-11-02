@@ -177,57 +177,106 @@ tr:nth-child(even) { background-color: #f1f5f9; }
   };
 
   const downloadWord = (): void => {
-    let content = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
+    let content = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
 <head>
-<meta charset='utf-8'>
-<title>Lista de Precios EUROPADEL</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 15">
+<meta name=Originator content="Microsoft Word 15">
+<!--[if gte mso 9]>
 <xml>
 <w:WordDocument>
 <w:View>Print</w:View>
 <w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
 </w:WordDocument>
 </xml>
+<![endif]-->
 <style>
-@page { size: landscape; margin: 1cm; }
+@page WordSection1 {
+  size: 11.0in 8.5in;
+  margin: 0.5in 0.5in 0.5in 0.5in;
+  mso-header-margin: 0.5in;
+  mso-footer-margin: 0.5in;
+  mso-page-orientation: landscape;
+}
+div.WordSection1 { page: WordSection1; }
 body { font-family: Calibri, Arial, sans-serif; }
-h1 { color: #4f46e5; text-align: center; font-size: 18px; margin: 10px 0; }
-table { border-collapse: collapse; width: 100%; font-size: 8px; margin-top: 10px; }
-th { background-color: #4f46e5; color: white; padding: 6px 3px; border: 1px solid #3730a3; white-space: nowrap; }
-td { padding: 5px 3px; border: 1px solid #cbd5e1; text-align: center; white-space: nowrap; }
-tr:nth-child(even) { background-color: #f1f5f9; }
+h1 { color: #4f46e5; text-align: center; font-size: 16pt; margin: 10px 0; }
+table { 
+  border-collapse: collapse; 
+  width: 100%; 
+  font-size: 8pt; 
+  margin-top: 10px;
+  mso-table-lspace: 0pt;
+  mso-table-rspace: 0pt;
+}
+th { 
+  background-color: #4f46e5; 
+  color: white; 
+  padding: 4pt 2pt; 
+  border: 1pt solid #3730a3;
+  font-weight: bold;
+}
+td { 
+  padding: 3pt 2pt; 
+  border: 1pt solid #cbd5e1; 
+  text-align: center;
+}
 .disponible { background-color: #dcfce7; color: #166534; font-weight: bold; }
 .bajo-stock { background-color: #fef3c7; color: #92400e; font-weight: bold; }
 .agotado { background-color: #fee2e2; color: #991b1b; font-weight: bold; }
-.nombre-col { text-align: left; max-width: 180px; white-space: normal; }
+.nombre-col { text-align: left; }
+.precio { color: #059669; font-weight: bold; }
+.recargo { color: #2563eb; font-weight: bold; }
+.precio-final { color: #7c3aed; font-weight: bold; }
 </style>
 </head>
 <body>
+<div class="WordSection1">
 <h1>LISTA DE PRECIOS EUROPADEL</h1>
-<p style="text-align: center; color: #64748b; font-size: 9px;">Página ${currentPage}</p>
-<table>
-<tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Cant.</th><th>Precio Base</th><th>% Rec.</th><th>Precio Final</th><th>Estado</th><th>Marca</th></tr>`;
+<p align="center" style="color: #64748b; font-size: 8pt;">Página ${currentPage}</p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tr>
+<th>ID</th>
+<th>Nombre</th>
+<th>Categoría</th>
+<th>Cant.</th>
+<th>Precio Base</th>
+<th>% Rec.</th>
+<th>Precio Final</th>
+<th>Estado</th>
+<th>Marca</th>
+</tr>`;
 
     currentProducts.forEach(p => {
       const estadoClass = p.estado === 'Disponible' ? 'disponible' : p.estado === 'Bajo Stock' ? 'bajo-stock' : 'agotado';
-      content += `<tr>
-<td><strong>${p.id}</strong></td>
+      content += `
+<tr>
+<td><b>${p.id}</b></td>
 <td class="nombre-col">${p.nombre}</td>
 <td>${p.categoria}</td>
-<td><strong>${p.cantidad}</strong></td>
-<td style="color: #059669; font-weight: bold;">$${p.precio}</td>
-<td style="color: #2563eb; font-weight: bold;">${p.porcentajeRecargo}%</td>
-<td style="color: #7c3aed; font-weight: bold;">$${p.precioConRecargo}</td>
+<td><b>${p.cantidad}</b></td>
+<td class="precio">${p.precio}</td>
+<td class="recargo">${p.porcentajeRecargo}%</td>
+<td class="precio-final">${p.precioConRecargo}</td>
 <td class="${estadoClass}">${p.estado}</td>
 <td>${p.proveedor}</td>
 </tr>`;
     });
 
-    content += `</table><p style="margin-top: 10px; text-align: center; color: #64748b; font-size: 8px;">Generado: ${new Date().toLocaleDateString('es-AR')} - Total: ${currentProducts.length}</p></body></html>`;
+    content += `
+</table>
+<p align="center" style="margin-top: 10px; color: #64748b; font-size: 7pt;">Generado: ${new Date().toLocaleDateString('es-AR')} - Total: ${currentProducts.length} productos</p>
+</div>
+</body>
+</html>`;
 
     const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `lista_precios_europadel_pagina_${currentPage}.doc`;
+    link.download = `lista_precios_europadel_pag_${currentPage}.doc`;
     link.click();
   };
 
