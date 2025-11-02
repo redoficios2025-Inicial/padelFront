@@ -45,15 +45,15 @@ const Navbar: React.FC = () => {
                 <>
                   <Link href="/crear-producto" className={stylesNavbar.navLink}>Crear Producto</Link>
                   <Link href="/dashboard" className={stylesNavbar.navLink}>Inventario</Link>
-                  <Link href="/ayuda" className={stylesNavbar.navLink}>Ayuda</Link>
+                  {/* <Link href="/ayuda" className={stylesNavbar.navLink}>Ayuda</Link> */}
                 </>
               )}
 
               {/* Solo admin */}
               {user.rol === "admin" && (
                 <>
-                  <Link href="/proveedores" className={stylesNavbar.navLink}>Proveedores</Link>
-                  <Link href="/todos-productos" className={stylesNavbar.navLink}>Todos los Productos</Link>
+                  {/* <Link href="/proveedores" className={stylesNavbar.navLink}>Proveedores</Link> */}
+                  {/* <Link href="/todos-productos" className={stylesNavbar.navLink}>Todos los Productos</Link> */}
                 </>
               )}
 
@@ -129,4 +129,3 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
-
