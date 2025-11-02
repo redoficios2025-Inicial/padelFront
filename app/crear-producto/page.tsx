@@ -718,6 +718,7 @@ export default function AdminProductos() {
                                                     {p.stock}
                                                 </span>
                                             </div>
+                                            <small>ℹ️ Los descuentos solo se ven reflejados al usuario final</small>
                                             <span className={`inline-block w-full text-center px-2 py-1 rounded-lg text-xs font-bold ${p.descuento && Number(p.descuento) > 0 ? 'bg-red-600 text-white' : 'bg-gray-700 text-white'}`}>
                                                 {p.descuento && Number(p.descuento) > 0 ? `-${p.descuento}% OFF` : 'Sin descuento'}
                                             </span>
