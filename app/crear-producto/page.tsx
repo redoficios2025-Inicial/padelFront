@@ -90,7 +90,7 @@ export default function AdminProductos() {
 
     useEffect(() => {
         if (isAuth) calcular();
-    }, [form.precio, form.recargoTransporte, form.recargoMargen, form.recargoOtros, isAuth]);
+    }, [form.precio, form.descuento, form.recargoTransporte, form.recargoMargen, form.recargoOtros, isAuth]);
 
     const handleLogin = () => {
         setLoading(true);
@@ -125,9 +125,17 @@ export default function AdminProductos() {
     };
 
     const calcular = () => {
-        const p = parseFloat(form.precio) || 0;
-        const t = (parseFloat(form.recargoTransporte) || 0) + (parseFloat(form.recargoMargen) || 0) + (parseFloat(form.recargoOtros) || 0);
-        setForm(prev => ({ ...prev, precioFinal: p * (1 + t / 100) }));
+        const precioBase = parseFloat(form.precio) || 0;
+        const descuentoPorcentaje = parseFloat(form.descuento) || 0;
+        const transportePorcentaje = parseFloat(form.recargoTransporte) || 0;
+        const margenPorcentaje = parseFloat(form.recargoMargen) || 0;
+        const otrosPorcentaje = parseFloat(form.recargoOtros) || 0;
+
+        const precioConDescuento = precioBase * (1 - descuentoPorcentaje / 100);
+        const totalRecargos = transportePorcentaje + margenPorcentaje + otrosPorcentaje;
+        const precioFinal = precioConDescuento * (1 + totalRecargos / 100);
+
+        setForm(prev => ({ ...prev, precioFinal: precioFinal }));
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -233,7 +241,7 @@ export default function AdminProductos() {
     };
 
     const fmt = (p: number, m: 'ARS' | 'USD') =>
-        m === 'ARS' ? `$${p.toLocaleString('es-AR', { minimumFractionDigits: 2 })}` : `USD $${p.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        m === 'ARS' ? `$${p.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `USD $${p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
     const productosFiltrados = productos.filter(p => {
         const matchBuscar = p.nombre.toLowerCase().includes(filtros.buscar.toLowerCase()) ||
@@ -264,7 +272,6 @@ export default function AdminProductos() {
                                 required 
                                 placeholder="123456" 
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none transition text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
                         <div>
@@ -276,7 +283,6 @@ export default function AdminProductos() {
                                 required 
                                 placeholder="test@gmail.com" 
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none transition text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
                         <div>
@@ -288,7 +294,6 @@ export default function AdminProductos() {
                                 required 
                                 placeholder="••••••" 
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none transition text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
                         {error && <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>}
@@ -308,7 +313,6 @@ export default function AdminProductos() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-3 sm:p-4 md:p-6">
             <div className="max-w-7xl mx-auto">
-                {/* Header */}
                 <div className="bg-white rounded-2xl p-4 mb-4 sm:mb-6 shadow-lg border border-gray-100">
                     <div className="flex flex-col gap-3">
                         <div>
@@ -333,7 +337,6 @@ export default function AdminProductos() {
                     </div>
                 </div>
 
-                {/* Formulario */}
                 <form className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 mb-4 sm:mb-8 shadow-lg border border-gray-100" onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                         <div>
@@ -348,7 +351,6 @@ export default function AdminProductos() {
                                 onChange={handleChange} 
                                 required 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
 
@@ -364,7 +366,6 @@ export default function AdminProductos() {
                                 onChange={handleChange} 
                                 required 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
 
@@ -377,7 +378,6 @@ export default function AdminProductos() {
                                 onChange={handleChange} 
                                 required 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
 
@@ -395,7 +395,6 @@ export default function AdminProductos() {
                                 min="0" 
                                 step="1" 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
 
@@ -407,7 +406,6 @@ export default function AdminProductos() {
                                 onChange={handleChange} 
                                 required 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             >
                                 <option value="pelota">⚽ Pelota</option>
                                 <option value="ropa">👕 Ropa</option>
@@ -418,7 +416,7 @@ export default function AdminProductos() {
                         <div>
                             <label className="block mb-2 font-semibold text-xs sm:text-sm flex items-center gap-2 text-gray-700">
                                 <DollarSign size={16} className="text-emerald-600" />
-                                Precio *
+                                Precio Base *
                             </label>
                             <input 
                                 type="number" 
@@ -429,7 +427,6 @@ export default function AdminProductos() {
                                 step="0.01" 
                                 min="0" 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
 
@@ -440,7 +437,6 @@ export default function AdminProductos() {
                                 value={form.moneda} 
                                 onChange={handleChange} 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             >
                                 <option value="ARS">🇦🇷 ARS (Pesos)</option>
                                 <option value="USD">🇺🇸 USD (Dólares)</option>
@@ -448,7 +444,9 @@ export default function AdminProductos() {
                         </div>
 
                         <div>
-                            <label className="block mb-2 font-semibold text-xs sm:text-sm text-gray-700">Descuento (%)</label>
+                            <label className="block mb-2 font-semibold text-xs sm:text-sm text-gray-700 flex items-center gap-1">
+                                <span className="text-red-600">🏷️</span> Descuento (%)
+                            </label>
                             <input 
                                 type="number" 
                                 name="descuento" 
@@ -458,8 +456,8 @@ export default function AdminProductos() {
                                 min="0" 
                                 max="100" 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
+                            <p className="text-xs text-gray-500 mt-1">Se aplica primero</p>
                         </div>
 
                         <div>
@@ -472,7 +470,6 @@ export default function AdminProductos() {
                                 required 
                                 placeholder="+54 XXX XX XXXX" 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
 
@@ -486,7 +483,6 @@ export default function AdminProductos() {
                                 step="0.01" 
                                 min="0" 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
 
@@ -500,7 +496,6 @@ export default function AdminProductos() {
                                 step="0.01" 
                                 min="0" 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
 
@@ -514,7 +509,6 @@ export default function AdminProductos() {
                                 step="0.01" 
                                 min="0" 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
 
@@ -536,7 +530,6 @@ export default function AdminProductos() {
                                 rows={4} 
                                 placeholder="Describe el producto detalladamente..." 
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 resize-y transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
 
@@ -555,15 +548,62 @@ export default function AdminProductos() {
                         </div>
 
                         <div className="md:col-span-2 lg:col-span-3 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 p-4 sm:p-6 rounded-2xl border-2 border-emerald-200">
-                            <div className="flex flex-col sm:flex-row justify-around items-center gap-3 sm:gap-4">
-                                <div className="text-center">
-                                    <span className="block text-xs sm:text-sm font-semibold mb-2 text-gray-600">Precio Base:</span>
-                                    <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-700">{fmt(parseFloat(form.precio) || 0, form.moneda)}</span>
+                            <h3 className="text-sm font-bold text-gray-800 mb-4 text-center">📊 Cálculo de Precio</h3>
+                            
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center bg-white/70 p-3 rounded-lg">
+                                    <span className="text-sm font-semibold text-gray-700">1️⃣ Precio Base:</span>
+                                    <span className="text-lg font-bold text-gray-800">{fmt(parseFloat(form.precio) || 0, form.moneda)}</span>
                                 </div>
-                                <div className="text-2xl sm:text-3xl text-gray-400 hidden sm:block">→</div>
-                                <div className="text-center">
-                                    <span className="block text-xs sm:text-sm font-semibold mb-2 text-gray-600">Precio Final:</span>
-                                    <span className="text-xl sm:text-2xl md:text-3xl font-bold text-emerald-600">{fmt(form.precioFinal, form.moneda)}</span>
+
+                                {parseFloat(form.descuento) > 0 && (
+                                    <>
+                                        <div className="flex justify-between items-center bg-red-50 p-3 rounded-lg border border-red-200">
+                                            <span className="text-sm font-semibold text-red-700">2️⃣ Descuento ({form.descuento}%):</span>
+                                            <span className="text-lg font-bold text-red-600">-{fmt((parseFloat(form.precio) || 0) * (parseFloat(form.descuento) || 0) / 100, form.moneda)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-orange-50 p-3 rounded-lg border border-orange-200">
+                                            <span className="text-sm font-semibold text-orange-700">Precio con Descuento:</span>
+                                            <span className="text-lg font-bold text-orange-600">{fmt((parseFloat(form.precio) || 0) * (1 - (parseFloat(form.descuento) || 0) / 100), form.moneda)}</span>
+                                        </div>
+                                    </>
+                                )}
+
+                                {(parseFloat(form.recargoTransporte) > 0 || parseFloat(form.recargoMargen) > 0 || parseFloat(form.recargoOtros) > 0) && (
+                                    <div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
+                                        <p className="text-sm font-bold text-amber-800 mb-2">3️⃣ Recargos (sobre precio {parseFloat(form.descuento) > 0 ? 'con descuento' : 'base'}):</p>
+                                        <div className="space-y-1.5">
+                                            {parseFloat(form.recargoTransporte) > 0 && (
+                                                <div className="flex justify-between text-xs">
+                                                    <span className="text-amber-700">Transporte: {form.recargoTransporte}%</span>
+                                                    <span className="font-bold text-amber-800">+{fmt(((parseFloat(form.precio) || 0) * (1 - (parseFloat(form.descuento) || 0) / 100)) * (parseFloat(form.recargoTransporte) || 0) / 100, form.moneda)}</span>
+                                                </div>
+                                            )}
+                                            {parseFloat(form.recargoMargen) > 0 && (
+                                                <div className="flex justify-between text-xs">
+                                                    <span className="text-amber-700">Margen: {form.recargoMargen}%</span>
+                                                    <span className="font-bold text-amber-800">+{fmt(((parseFloat(form.precio) || 0) * (1 - (parseFloat(form.descuento) || 0) / 100)) * (parseFloat(form.recargoMargen) || 0) / 100, form.moneda)}</span>
+                                                </div>
+                                            )}
+                                            {parseFloat(form.recargoOtros) > 0 && (
+                                                <div className="flex justify-between text-xs">
+                                                    <span className="text-amber-700">Otros: {form.recargoOtros}%</span>
+                                                    <span className="font-bold text-amber-800">+{fmt(((parseFloat(form.precio) || 0) * (1 - (parseFloat(form.descuento) || 0) / 100)) * (parseFloat(form.recargoOtros) || 0) / 100, form.moneda)}</span>
+                                                </div>
+                                            )}
+                                            <div className="border-t border-amber-300 pt-2 mt-2">
+                                                <div className="flex justify-between">
+                                                    <span className="text-sm font-bold text-amber-900">Total Recargos:</span>
+                                                    <span className="font-bold text-amber-900">{(parseFloat(form.recargoTransporte) || 0) + (parseFloat(form.recargoMargen) || 0) + (parseFloat(form.recargoOtros) || 0)}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between items-center bg-gradient-to-r from-emerald-100 to-green-100 p-4 rounded-lg border-2 border-emerald-400 shadow-md">
+                                    <span className="text-base font-bold text-emerald-900">💰 PRECIO FINAL:</span>
+                                    <span className="text-2xl font-bold text-emerald-700">{fmt(form.precioFinal, form.moneda)}</span>
                                 </div>
                             </div>
                         </div>
@@ -581,7 +621,6 @@ export default function AdminProductos() {
                     </div>
                 </form>
 
-                {/* Filtros */}
                 <div className="bg-white rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-lg border border-gray-100">
                     <div className="grid md:grid-cols-2 gap-3 sm:gap-4">
                         <div>
@@ -595,7 +634,6 @@ export default function AdminProductos() {
                                 value={filtros.buscar}
                                 onChange={(e) => setFiltros({ ...filtros, buscar: e.target.value })}
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             />
                         </div>
                         <div>
@@ -607,7 +645,6 @@ export default function AdminProductos() {
                                 value={filtros.categoria}
                                 onChange={(e) => setFiltros({ ...filtros, categoria: e.target.value })}
                                 className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition text-sm text-gray-900"
-                                style={{ color: '#000000' }}
                             >
                                 <option value="todos">Todas las categorías</option>
                                 <option value="pelota">⚽ Pelotas</option>
@@ -618,7 +655,6 @@ export default function AdminProductos() {
                     </div>
                 </div>
 
-                {/* Lista de Productos */}
                 <div className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg border border-gray-100">
                     <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                         <Package className="text-indigo-600" />
@@ -731,7 +767,6 @@ export default function AdminProductos() {
                 </div>
             </div>
 
-            {/* Modal Detalle */}
             {showModal && productoDetalle && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-3 sm:p-4" onClick={() => setShowModal(false)}>
                     <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -794,8 +829,14 @@ export default function AdminProductos() {
                                     <div className="bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-400 p-3 sm:p-4 md:p-5 rounded-2xl">
                                         <div className="flex justify-between items-center mb-2 sm:mb-3">
                                             <span className="text-gray-800 font-semibold text-xs sm:text-sm">Precio Base:</span>
-                                            <span className="text-sm sm:text-base md:text-lg font-bold line-through text-gray-600">{fmt(Number(productoDetalle.precio), productoDetalle.moneda)}</span>
+                                            <span className="text-sm sm:text-base md:text-lg font-bold text-gray-600">{fmt(Number(productoDetalle.precio), productoDetalle.moneda)}</span>
                                         </div>
+                                        {Number(productoDetalle.descuento) > 0 && (
+                                            <div className="flex justify-between items-center mb-2 sm:mb-3">
+                                                <span className="text-red-700 font-semibold text-xs sm:text-sm">Descuento ({productoDetalle.descuento}%):</span>
+                                                <span className="text-sm sm:text-base font-bold text-red-600">-{fmt(Number(productoDetalle.precio) * Number(productoDetalle.descuento) / 100, productoDetalle.moneda)}</span>
+                                            </div>
+                                        )}
                                         <div className="flex justify-between items-center mb-2 sm:mb-3">
                                             <span className="text-sm sm:text-lg md:text-xl font-bold text-gray-900">Precio Final:</span>
                                             <span className="text-lg sm:text-2xl md:text-3xl font-bold text-emerald-700">{fmt(productoDetalle.precioFinal, productoDetalle.moneda)}</span>
@@ -804,13 +845,6 @@ export default function AdminProductos() {
                                             <span className="text-gray-700">Moneda:</span>
                                             <span className="font-bold text-gray-900">{productoDetalle.moneda}</span>
                                         </div>
-                                        {Number(productoDetalle.descuento) > 0 && (
-                                            <div className="mt-3 text-center">
-                                                <span className="bg-red-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-xs sm:text-sm shadow-lg">
-                                                    DESCUENTO: {productoDetalle.descuento}%
-                                                </span>
-                                            </div>
-                                        )}
                                     </div>
 
                                     {(productoDetalle.recargos.transporte > 0 || productoDetalle.recargos.margen > 0 || productoDetalle.recargos.otros > 0) && (
