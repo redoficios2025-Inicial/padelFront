@@ -127,47 +127,49 @@ const InventoryDashboard: React.FC = () => {
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
   const downloadExcel = (): void => {
-    const headers = ['ID', 'Nombre', 'Categoría', 'Cantidad', 'Precio Base', '% Recargo', 'Precio Final', 'Estado', 'Proveedor'];
+    const headers = ['ID', 'Nombre', 'Categoría', 'Cant.', 'Precio Base', '% Rec.', 'Precio Final', 'Estado', 'Marca'];
 
-    let htmlContent = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
-      <head>
-        <meta charset="utf-8">
-        <style>
-          table { border-collapse: collapse; width: 100%; }
-          th { background-color: #4f46e5; color: white; font-weight: bold; padding: 12px; border: 2px solid #3730a3; text-align: center; }
-          td { padding: 10px; border: 1px solid #cbd5e1; text-align: center; }
-          tr:nth-child(even) { background-color: #f1f5f9; }
-          .disponible { background-color: #dcfce7; color: #166534; font-weight: bold; }
-          .bajo-stock { background-color: #fef3c7; color: #92400e; font-weight: bold; }
-          .agotado { background-color: #fee2e2; color: #991b1b; font-weight: bold; }
-          .precio { color: #059669; font-weight: bold; }
-          .precio-final { color: #7c3aed; font-weight: bold; }
-        </style>
-      </head>
-      <body>
-        <h1 style="color: #4f46e5; text-align: center;">LISTA DE PRECIOS EUROPADEL</h1>
-        <p style="text-align: center; color: #64748b;">Página ${currentPage}</p>
-        <table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>`;
+    let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@page { size: landscape; }
+table { border-collapse: collapse; width: 100%; font-size: 9px; }
+th { background-color: #4f46e5; color: white; font-weight: bold; padding: 6px 3px; border: 1px solid #3730a3; text-align: center; white-space: nowrap; }
+td { padding: 5px 3px; border: 1px solid #cbd5e1; text-align: center; white-space: nowrap; }
+tr:nth-child(even) { background-color: #f1f5f9; }
+.disponible { background-color: #dcfce7; color: #166534; font-weight: bold; }
+.bajo-stock { background-color: #fef3c7; color: #92400e; font-weight: bold; }
+.agotado { background-color: #fee2e2; color: #991b1b; font-weight: bold; }
+.precio { color: #059669; font-weight: bold; }
+.precio-final { color: #7c3aed; font-weight: bold; }
+.nombre-col { text-align: left; max-width: 200px; white-space: normal; }
+</style>
+</head>
+<body>
+<h2 style="color: #4f46e5; text-align: center; font-size: 14px; margin: 10px 0;">LISTA DE PRECIOS EUROPADEL</h2>
+<p style="text-align: center; color: #64748b; font-size: 10px; margin: 5px 0;">Página ${currentPage}</p>
+<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>`;
 
     currentProducts.forEach(p => {
-      const estadoClass: string = p.estado === 'Disponible' ? 'disponible' : p.estado === 'Bajo Stock' ? 'bajo-stock' : 'agotado';
+      const estadoClass = p.estado === 'Disponible' ? 'disponible' : p.estado === 'Bajo Stock' ? 'bajo-stock' : 'agotado';
       htmlContent += `<tr>
-        <td><strong>${p.id}</strong></td>
-        <td style="text-align: left;">${p.nombre}</td>
-        <td>${p.categoria}</td>
-        <td><strong>${p.cantidad}</strong></td>
-        <td class="precio">$${p.precio}</td>
-        <td style="color: #2563eb; font-weight: bold;">${p.porcentajeRecargo}%</td>
-        <td class="precio-final">$${p.precioConRecargo}</td>
-        <td class="${estadoClass}">${p.estado}</td>
-        <td>${p.proveedor}</td>
-      </tr>`;
+<td><strong>${p.id}</strong></td>
+<td class="nombre-col">${p.nombre}</td>
+<td>${p.categoria}</td>
+<td><strong>${p.cantidad}</strong></td>
+<td class="precio">$${p.precio}</td>
+<td style="color: #2563eb; font-weight: bold;">${p.porcentajeRecargo}%</td>
+<td class="precio-final">$${p.precioConRecargo}</td>
+<td class="${estadoClass}">${p.estado}</td>
+<td>${p.proveedor}</td>
+</tr>`;
     });
 
-    htmlContent += `</tbody></table><p style="margin-top: 20px; text-align: center; color: #64748b;">Generado: ${new Date().toLocaleDateString('es-AR')} - Total: ${currentProducts.length}</p></body></html>`;
+    htmlContent += `</tbody></table><p style="margin-top: 10px; text-align: center; color: #64748b; font-size: 9px;">Generado: ${new Date().toLocaleDateString('es-AR')} - Total: ${currentProducts.length}</p></body></html>`;
 
-    const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/vnd.ms-excel' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `lista_precios_europadel_pagina_${currentPage}.xls`;
@@ -176,29 +178,51 @@ const InventoryDashboard: React.FC = () => {
 
   const downloadWord = (): void => {
     let content = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
-      <head><meta charset='utf-8'><title>Lista de Precios EUROPADEL</title>
-        <style>
-          @page { size: landscape; margin: 1.5cm 1cm; }
-          body { font-family: Calibri, Arial, sans-serif; }
-          h1 { color: #4f46e5; text-align: center; font-size: 20px; }
-          table { border-collapse: collapse; width: 100%; font-size: 9px; }
-          th { background-color: #4f46e5; color: white; padding: 8px 4px; border: 2px solid #3730a3; }
-          td { padding: 6px 4px; border: 1px solid #cbd5e1; text-align: center; }
-          tr:nth-child(even) { background-color: #f1f5f9; }
-          .disponible { background-color: #dcfce7; color: #166534; font-weight: bold; }
-          .bajo-stock { background-color: #fef3c7; color: #92400e; font-weight: bold; }
-          .agotado { background-color: #fee2e2; color: #991b1b; font-weight: bold; }
-        </style>
-      </head>
-      <body><h1>LISTA DE PRECIOS EUROPADEL</h1><p style="text-align: center; color: #64748b;">Página ${currentPage}</p>
-        <table><tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Cant.</th><th>Precio Base</th><th>% Rec.</th><th>Precio Final</th><th>Estado</th><th>Proveedor</th></tr>`;
+<head>
+<meta charset='utf-8'>
+<title>Lista de Precios EUROPADEL</title>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+</w:WordDocument>
+</xml>
+<style>
+@page { size: landscape; margin: 1cm; }
+body { font-family: Calibri, Arial, sans-serif; }
+h1 { color: #4f46e5; text-align: center; font-size: 18px; margin: 10px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 8px; margin-top: 10px; }
+th { background-color: #4f46e5; color: white; padding: 6px 3px; border: 1px solid #3730a3; white-space: nowrap; }
+td { padding: 5px 3px; border: 1px solid #cbd5e1; text-align: center; white-space: nowrap; }
+tr:nth-child(even) { background-color: #f1f5f9; }
+.disponible { background-color: #dcfce7; color: #166534; font-weight: bold; }
+.bajo-stock { background-color: #fef3c7; color: #92400e; font-weight: bold; }
+.agotado { background-color: #fee2e2; color: #991b1b; font-weight: bold; }
+.nombre-col { text-align: left; max-width: 180px; white-space: normal; }
+</style>
+</head>
+<body>
+<h1>LISTA DE PRECIOS EUROPADEL</h1>
+<p style="text-align: center; color: #64748b; font-size: 9px;">Página ${currentPage}</p>
+<table>
+<tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Cant.</th><th>Precio Base</th><th>% Rec.</th><th>Precio Final</th><th>Estado</th><th>Marca</th></tr>`;
 
     currentProducts.forEach(p => {
-      const estadoClass: string = p.estado === 'Disponible' ? 'disponible' : p.estado === 'Bajo Stock' ? 'bajo-stock' : 'agotado';
-      content += `<tr><td><strong>${p.id}</strong></td><td>${p.nombre}</td><td>${p.categoria}</td><td><strong>${p.cantidad}</strong></td><td style="color: #059669; font-weight: bold;">${p.precio}</td><td style="color: #2563eb; font-weight: bold;">${p.porcentajeRecargo}%</td><td style="color: #7c3aed; font-weight: bold;">${p.precioConRecargo}</td><td class="${estadoClass}">${p.estado}</td><td>${p.proveedor}</td></tr>`;
+      const estadoClass = p.estado === 'Disponible' ? 'disponible' : p.estado === 'Bajo Stock' ? 'bajo-stock' : 'agotado';
+      content += `<tr>
+<td><strong>${p.id}</strong></td>
+<td class="nombre-col">${p.nombre}</td>
+<td>${p.categoria}</td>
+<td><strong>${p.cantidad}</strong></td>
+<td style="color: #059669; font-weight: bold;">$${p.precio}</td>
+<td style="color: #2563eb; font-weight: bold;">${p.porcentajeRecargo}%</td>
+<td style="color: #7c3aed; font-weight: bold;">$${p.precioConRecargo}</td>
+<td class="${estadoClass}">${p.estado}</td>
+<td>${p.proveedor}</td>
+</tr>`;
     });
 
-    content += `</table><p style="margin-top: 15px; text-align: center; color: #64748b; font-size: 9px;">Generado: ${new Date().toLocaleDateString('es-AR')} - Total: ${currentProducts.length}</p></body></html>`;
+    content += `</table><p style="margin-top: 10px; text-align: center; color: #64748b; font-size: 8px;">Generado: ${new Date().toLocaleDateString('es-AR')} - Total: ${currentProducts.length}</p></body></html>`;
 
     const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
     const link = document.createElement('a');
@@ -209,26 +233,25 @@ const InventoryDashboard: React.FC = () => {
 
   const downloadPDF = (): void => {
     const content = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
-      @page { size: landscape; margin: 1cm; }
-      body { font-family: Arial, sans-serif; padding: 20px; }
-      h1 { color: #4f46e5; text-align: center; font-size: 24px; }
-      table { border-collapse: collapse; width: 100%; font-size: 11px; margin-top: 10px; }
-      th { background-color: #4f46e5; color: white; padding: 10px 8px; border: 2px solid #3730a3; }
-      td { padding: 8px; border: 1px solid #cbd5e1; text-align: center; }
-      tr:nth-child(even) { background-color: #f1f5f9; }
-      .disponible { background-color: #dcfce7; color: #166534; font-weight: bold; }
-      .bajo-stock { background-color: #fef3c7; color: #92400e; font-weight: bold; }
-      .agotado { background-color: #fee2e2; color: #991b1b; font-weight: bold; }
-    </style></head><body>
-      <h1>📦 LISTA DE PRECIOS EUROPADEL</h1><p style="text-align: center; color: #64748b;">Página ${currentPage}</p>
-      <table><thead><tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Cantidad</th><th>Precio Base</th><th>% Recargo</th><th>Precio Final</th><th>Estado</th><th>Proveedor</th></tr></thead><tbody>
-        ${currentProducts.map(p => {
-      const estadoClass: string = p.estado === 'Disponible' ? 'disponible' : p.estado === 'Bajo Stock' ? 'bajo-stock' : 'agotado';
+@page { size: landscape; margin: 1cm; }
+body { font-family: Arial, sans-serif; padding: 20px; }
+h1 { color: #4f46e5; text-align: center; font-size: 24px; }
+table { border-collapse: collapse; width: 100%; font-size: 11px; margin-top: 10px; }
+th { background-color: #4f46e5; color: white; padding: 10px 8px; border: 2px solid #3730a3; }
+td { padding: 8px; border: 1px solid #cbd5e1; text-align: center; }
+tr:nth-child(even) { background-color: #f1f5f9; }
+.disponible { background-color: #dcfce7; color: #166534; font-weight: bold; }
+.bajo-stock { background-color: #fef3c7; color: #92400e; font-weight: bold; }
+.agotado { background-color: #fee2e2; color: #991b1b; font-weight: bold; }
+</style></head><body>
+<h1>📦 LISTA DE PRECIOS EUROPADEL</h1>
+<p style="text-align: center; color: #64748b;">Página ${currentPage}</p>
+<table><thead><tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Cantidad</th><th>Precio Base</th><th>% Recargo</th><th>Precio Final</th><th>Estado</th><th>Proveedor</th></tr></thead><tbody>${currentProducts.map(p => {
+      const estadoClass = p.estado === 'Disponible' ? 'disponible' : p.estado === 'Bajo Stock' ? 'bajo-stock' : 'agotado';
       return `<tr><td><strong>${p.id}</strong></td><td style="text-align: left;">${p.nombre}</td><td>${p.categoria}</td><td><strong>${p.cantidad}</strong></td><td style="color: #059669; font-weight: bold;">$${p.precio}</td><td style="color: #2563eb; font-weight: bold;">${p.porcentajeRecargo}%</td><td style="color: #7c3aed; font-weight: bold;">$${p.precioConRecargo}</td><td class="${estadoClass}">${p.estado}</td><td>${p.proveedor}</td></tr>`;
-    }).join('')}
-      </tbody></table>
-      <div style="margin-top: 15px; text-align: center; color: #64748b; font-size: 10px;"><p>Generado: ${new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} | Total: ${currentProducts.length}</p></div>
-    </body></html>`;
+    }).join('')}</tbody></table>
+<div style="margin-top: 15px; text-align: center; color: #64748b; font-size: 10px;"><p>Generado: ${new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} | Total: ${currentProducts.length}</p></div>
+</body></html>`;
 
     const blob = new Blob([content], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -240,23 +263,12 @@ const InventoryDashboard: React.FC = () => {
 
   const categories = useMemo(() => ['Todas', ...new Set(productos.map(p => p.categoria))], [productos]);
 
-  // Separar productos por moneda y calcular totales
   const productosARS = productos.filter(p => p.moneda === 'ARS');
   const productosUSD = productos.filter(p => p.moneda === 'USD');
 
-  const valorTotalARS = productosARS.reduce((sum, p) => {
-    const precio = Number(p.precioFinal) || 0;
-    const cantidad = Number(p.stock) || 0;
-    return sum + (precio * cantidad);
-  }, 0);
+  const valorTotalARS = productosARS.reduce((sum, p) => sum + ((Number(p.precioFinal) || 0) * (Number(p.stock) || 0)), 0);
+  const valorTotalUSD = productosUSD.reduce((sum, p) => sum + ((Number(p.precioFinal) || 0) * (Number(p.stock) || 0)), 0);
 
-  const valorTotalUSD = productosUSD.reduce((sum, p) => {
-    const precio = Number(p.precioFinal) || 0;
-    const cantidad = Number(p.stock) || 0;
-    return sum + (precio * cantidad);
-  }, 0);
-
-  // Calcular stock total
   const stockTotal = productos.reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
   const stockDisponibles = productos.filter(p => p.estado === 'Disponible').reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
   const stockBajoStock = productos.filter(p => p.estado === 'Bajo Stock').reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
