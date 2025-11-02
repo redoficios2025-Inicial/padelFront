@@ -97,13 +97,13 @@ const Navbar: React.FC = () => {
               {(user.rol === "admin" || user.rol === "vendedor") && (
                 <>
                   <Link href="/crear-producto" className={stylesNavbar.mobileLink} onClick={closeMenu}>Crear Producto</Link>
-                  <Link href="/inventario" className={stylesNavbar.mobileLink} onClick={closeMenu}>Inventario</Link>
-                  <Link href="/ayuda" className={stylesNavbar.mobileLink} onClick={closeMenu}>Ayuda</Link>
+                  {/* <Link href="/inventario" className={stylesNavbar.mobileLink} onClick={closeMenu}>Inventario</Link>
+                  <Link href="/ayuda" className={stylesNavbar.mobileLink} onClick={closeMenu}>Ayuda</Link> */}
                 </>
               )}
               {user.rol === "admin" && (
                 <>
-                  <Link href="/proveedores" className={stylesNavbar.mobileLink} onClick={closeMenu}>Proveedores</Link>
+                  {/* <Link href="/proveedores" className={stylesNavbar.mobileLink} onClick={closeMenu}>Proveedores</Link> */}
                   <Link href="/todos-productos" className={stylesNavbar.mobileLink} onClick={closeMenu}>Todos los Productos</Link>
                 </>
               )}
@@ -129,3 +129,4 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
+
