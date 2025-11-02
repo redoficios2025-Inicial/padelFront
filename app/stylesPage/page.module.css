@@ -488,10 +488,18 @@
 }
 
 .precioTachado {
-  font-size: 1.25rem;
-  color: var(--text-light);
+  font-size: 1.3rem;
+  color: #fff; /* blanco puro */
+  background-color: #ff0000; /* rojo fuerte */
   text-decoration: line-through;
-  font-weight: 500;
+  text-decoration-color: #9f8585ff; /* tachado blanco */
+  text-decoration-thickness: 3px; /* línea bien visible */
+  font-weight: 700; /* bold fuerte */
+  padding: 0.3em 0.6em;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.6); /* brillo rojo */
+  transition: all 0.3s ease;
 }
 
 .precioFinal {
@@ -763,6 +771,7 @@
     padding: 0.5rem 1rem;
   }
 }
+
 
 
 
