@@ -34,9 +34,10 @@ interface ProductoTransformado {
   porcentajeRecargo: string;
   precioConRecargo: string;
   _id: string;
-  moneda?: 'ARS' | 'USD';
+  moneda: 'ARS' | 'USD';
+  precioFinal: number;
+  stock: number;
 }
-
 
 const transformarProducto = (producto: ProductoBackend): ProductoTransformado => {
   const recargoTotal = (producto.recargos?.transporte || 0) +
@@ -44,6 +45,7 @@ const transformarProducto = (producto: ProductoBackend): ProductoTransformado =>
     (producto.recargos?.otros || 0);
 
   const cantidad = producto.stock ?? 0;
+  const precioFinalCalc = producto.precioFinal ?? producto.precio;
 
   const determinarEstado = (cantidad: number): 'Disponible' | 'Bajo Stock' | 'Agotado' => {
     if (cantidad === 0) return 'Agotado';
@@ -60,12 +62,13 @@ const transformarProducto = (producto: ProductoBackend): ProductoTransformado =>
     estado: determinarEstado(cantidad),
     proveedor: producto.marca,
     porcentajeRecargo: recargoTotal.toFixed(2),
-    precioConRecargo: (producto.precioFinal ?? producto.precio).toFixed(2),
+    precioConRecargo: precioFinalCalc.toFixed(2),
     _id: producto._id,
-    moneda: 'ARS'
+    moneda: producto.moneda || 'ARS',
+    precioFinal: precioFinalCalc,
+    stock: cantidad
   };
 };
-
 
 const InventoryDashboard: React.FC = () => {
   const [productos, setProductos] = useState<ProductoTransformado[]>([]);
@@ -74,9 +77,8 @@ const InventoryDashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('Todas');
-  const itemsPerPage = 50;
   const [moneda, setMoneda] = useState<"ARS" | "USD">("ARS");
-
+  const itemsPerPage = 50;
 
   const cargarProductos = async (): Promise<void> => {
     setLoading(true);
@@ -152,7 +154,7 @@ const InventoryDashboard: React.FC = () => {
       const estadoClass: string = p.estado === 'Disponible' ? 'disponible' : p.estado === 'Bajo Stock' ? 'bajo-stock' : 'agotado';
       htmlContent += `<tr>
         <td><strong>${p.id}</strong></td>
-        // <td style="text-align: left;">${p.nombre}</td>
+        <td style="text-align: left;">${p.nombre}</td>
         <td>${p.categoria}</td>
         <td><strong>${p.cantidad}</strong></td>
         <td class="precio">$${p.precio}</td>
@@ -238,53 +240,53 @@ const InventoryDashboard: React.FC = () => {
 
   const categories = useMemo(() => ['Todas', ...new Set(productos.map(p => p.categoria))], [productos]);
 
+  // Separar productos por moneda y calcular totales
+  const productosARS = productos.filter(p => p.moneda === 'ARS');
+  const productosUSD = productos.filter(p => p.moneda === 'USD');
 
+  const valorTotalARS = productosARS.reduce((sum, p) => {
+    const precio = Number(p.precioFinal) || 0;
+    const cantidad = Number(p.stock) || 0;
+    return sum + (precio * cantidad);
+  }, 0);
 
+  const valorTotalUSD = productosUSD.reduce((sum, p) => {
+    const precio = Number(p.precioFinal) || 0;
+    const cantidad = Number(p.stock) || 0;
+    return sum + (precio * cantidad);
+  }, 0);
 
-  // Estado para controlar la moneda
+  // Calcular stock total
+  const stockTotal = productos.reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
+  const stockDisponibles = productos.filter(p => p.estado === 'Disponible').reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
+  const stockBajoStock = productos.filter(p => p.estado === 'Bajo Stock').reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
+  const stockAgotado = productos.filter(p => p.estado === 'Agotado').reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
 
-  const stats = useMemo(() => {
-    let disponible = 0;
-    let bajoStock = 0;
-    let agotado = 0;
-
-    productos.forEach((p) => {
-      const cant = p.cantidad ?? 0;
-
-      if (cant === 0) {
-        agotado += 1; // cada producto agotado cuenta como 1
-      } else if (cant < 10) {
-        bajoStock += 1; // cada producto bajo stock cuenta como 1
-        disponible += cant; // solo las unidades disponibles se suman
-      } else {
-        disponible += cant; // suma las unidades
-      }
-    });
-
-    const totalValueNumber = productos.reduce(
-      (acc, p) => acc + (Number(p.precioConRecargo ?? p.precio ?? 0) * (p.cantidad ?? 0)),
-      0
-    );
-
-    const totalValue =
-      moneda?.toUpperCase() === "USD"
-        ? `${totalValueNumber.toLocaleString("en-US", { minimumFractionDigits: 2 })} Dólares`
-        : `${totalValueNumber.toLocaleString("es-AR", { minimumFractionDigits: 2 })} Pesos`;
-
-    return { disponible, bajoStock, agotado, totalValue };
-  }, [productos, moneda]);
-
+  const stats = {
+    total: productos.length,
+    disponible: productos.filter(p => p.estado === 'Disponible').length,
+    bajoStock: productos.filter(p => p.estado === 'Bajo Stock').length,
+    agotado: productos.filter(p => p.estado === 'Agotado').length,
+    stockDisponibles,
+    stockBajoStock,
+    stockAgotado,
+    stockTotal,
+    totalValue: moneda === 'ARS' 
+      ? `${valorTotalARS.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      : `USD ${valorTotalUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    cantidadProductos: moneda === 'ARS' ? productosARS.length : productosUSD.length
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-slate-800 mb-2">Dashboard de Inventario</h1>
-              <p className="text-slate-600">Gestión completa de productos y stock</p>
+              <h1 className="text-2xl sm:text-4xl font-bold text-slate-800 mb-2">Dashboard de Inventario</h1>
+              <p className="text-sm sm:text-base text-slate-600">Gestión completa de productos y stock</p>
             </div>
-            <button onClick={cargarProductos} disabled={loading} className="flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-md disabled:opacity-50">
+            <button onClick={cargarProductos} disabled={loading} className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-md disabled:opacity-50 text-sm sm:text-base w-full sm:w-auto justify-center">
               <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
               Recargar
             </button>
@@ -292,21 +294,21 @@ const InventoryDashboard: React.FC = () => {
         </div>
 
         {loading && (
-          <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+          <div className="bg-white rounded-xl shadow-lg p-8 sm:p-12 text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-            <p className="text-slate-600">Cargando productos desde el servidor...</p>
+            <p className="text-slate-600 text-sm sm:text-base">Cargando productos desde el servidor...</p>
           </div>
         )}
 
         {error && !loading && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6">
-            <div className="flex items-center gap-3 text-red-800">
-              <AlertCircle size={24} />
-              <div>
-                <h3 className="font-semibold">Error al cargar productos</h3>
-                <p className="text-sm">{error}</p>
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 sm:p-6 mb-6">
+            <div className="flex items-start gap-3 text-red-800">
+              <AlertCircle size={24} className="flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm sm:text-base">Error al cargar productos</h3>
+                <p className="text-xs sm:text-sm mt-1">{error}</p>
                 <p className="text-xs mt-1 text-red-600">Verifica que el servidor esté corriendo en {API_URL}</p>
-                <button onClick={cargarProductos} className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+                <button onClick={cargarProductos} className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs sm:text-sm">
                   Reintentar
                 </button>
               </div>
@@ -316,102 +318,112 @@ const InventoryDashboard: React.FC = () => {
 
         {!loading && !error && productos.length > 0 && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4 border-green-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-600 mb-1">Disponibles</p>
-                    <p className="text-3xl font-bold text-slate-800">{stats.disponible}</p>
+                    <p className="text-xs sm:text-sm text-slate-600 mb-1">Disponibles</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-slate-800">{stats.disponible}</p>
+                    <p className="text-xs text-slate-500 mt-1">Stock: {stats.stockDisponibles} unidades</p>
                   </div>
-                  <div className="bg-green-100 p-3 rounded-lg">
-                    <Package className="text-green-600" size={24} />
+                  <div className="bg-green-100 p-2 sm:p-3 rounded-lg">
+                    <Package className="text-green-600" size={20} />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4 border-yellow-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-600 mb-1">Bajo Stock</p>
-                    <p className="text-3xl font-bold text-slate-800">{stats.bajoStock}</p>
+                    <p className="text-xs sm:text-sm text-slate-600 mb-1">Bajo Stock</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-slate-800">{stats.bajoStock}</p>
+                    <p className="text-xs text-slate-500 mt-1">Stock: {stats.stockBajoStock} unidades</p>
                   </div>
-                  <div className="bg-yellow-100 p-3 rounded-lg">
-                    <Package className="text-yellow-600" size={24} />
+                  <div className="bg-yellow-100 p-2 sm:p-3 rounded-lg">
+                    <Package className="text-yellow-600" size={20} />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
+              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4 border-red-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-600 mb-1">Agotados</p>
-                    <p className="text-3xl font-bold text-slate-800">{stats.agotado}</p>
+                    <p className="text-xs sm:text-sm text-slate-600 mb-1">Agotados</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-slate-800">{stats.agotado}</p>
+                    <p className="text-xs text-slate-500 mt-1">Stock: {stats.stockAgotado} unidades</p>
                   </div>
-                  <div className="bg-red-100 p-3 rounded-lg">
-                    <Package className="text-red-600" size={24} />
+                  <div className="bg-red-100 p-2 sm:p-3 rounded-lg">
+                    <Package className="text-red-600" size={20} />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-indigo-500">
-                <h3 className="text-3xl font-bold text-red-600 ">
-                  Valor Total
-                </h3>
-                <p className="text-3xl font-bold text-slate-800">
-                  {stats.totalValue}
-                </p>
+              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4 border-indigo-500">
+                <div className="mb-3">
+                  <p className="text-xs sm:text-sm text-slate-600 mb-1">Valor Total ({stats.cantidadProductos} productos)</p>
+                  <p className="text-lg sm:text-xl font-bold text-slate-800 break-words">
+                    {stats.totalValue}
+                  </p>
+                </div>
 
-
-                <div className="flex items-center justify-between">
-
-                  {/* Opcional: botones para cambiar moneda */}
-                  <div className="flex gap-2 mt-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
                     <button
                       onClick={() => setMoneda("ARS")}
-                      className={`px-3 py-1 rounded ${moneda === "ARS" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"}`}
+                      className={`flex-1 sm:flex-none px-3 py-1 rounded text-xs font-semibold transition ${moneda === "ARS" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
                     >
                       Pesos
                     </button>
                     <button
                       onClick={() => setMoneda("USD")}
-                      className={`px-3 py-1 rounded ${moneda === "USD" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"}`}
+                      className={`flex-1 sm:flex-none px-3 py-1 rounded text-xs font-semibold transition ${moneda === "USD" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
                     >
                       Dólares
                     </button>
                   </div>
 
-                  <div className="bg-indigo-100 p-3 rounded-lg">
-                    <Package className="text-indigo-600" size={24} />
+                  <div className="bg-indigo-100 p-2 rounded-lg">
+                    <Package className="text-indigo-600" size={18} />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="flex flex-col md:flex-row gap-4 flex-1 w-full">
+            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
-                    <input type="text" placeholder="Buscar por nombre o código..." value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
+                    <input 
+                      type="text" 
+                      placeholder="Buscar..." 
+                      value={searchTerm} 
+                      onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} 
+                      className="w-full pl-10 pr-4 py-2 sm:py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm sm:text-base" 
+                    />
                   </div>
 
                   <div className="relative">
-                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
-                    <select value={filterCategory} onChange={(e) => { setFilterCategory(e.target.value); setCurrentPage(1); }} className="pl-10 pr-8 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none appearance-none bg-white">
+                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
+                    <select 
+                      value={filterCategory} 
+                      onChange={(e) => { setFilterCategory(e.target.value); setCurrentPage(1); }} 
+                      className="w-full sm:w-auto pl-10 pr-8 py-2 sm:py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none appearance-none bg-white text-sm sm:text-base"
+                    >
                       {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                     </select>
                   </div>
                 </div>
 
-                <div className="flex gap-3">
-                  <button onClick={downloadExcel} className="flex items-center gap-2 px-5 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md">
-                    <Download size={20} />Excel
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                  <button onClick={downloadExcel} className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md text-sm">
+                    <Download size={18} />Excel
                   </button>
-                  <button onClick={downloadWord} className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md">
-                    <Download size={20} />Word
+                  <button onClick={downloadWord} className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md text-sm">
+                    <Download size={18} />Word
                   </button>
-                  <button onClick={downloadPDF} className="flex items-center gap-2 px-5 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md">
-                    <Download size={20} />PDF
+                  <button onClick={downloadPDF} className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md text-sm">
+                    <Download size={18} />PDF
                   </button>
                 </div>
               </div>
@@ -419,53 +431,57 @@ const InventoryDashboard: React.FC = () => {
 
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-max">
                   <thead className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
                     <tr>
-                      <th className="px-6 py-4 text-left text-sm font-semibold">Código</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold">Nombre</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold">Categoría</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold">Stock</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold">Precio Base</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold">% Recargo</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold">Precio Final</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold">Estado</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold">Marca</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">Código</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">Nombre</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">Categoría</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">Stock</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">Precio Base</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">% Rec.</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">Precio Final</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">Estado</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">Marca</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
                     {currentProducts.map((producto, idx) => (
                       <tr key={producto._id} className={`hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}>
-                        <td className="px-6 py-4 text-sm font-medium text-slate-800">{producto.id}</td>
-                        <td className="px-6 py-4 text-sm text-slate-700">{producto.nombre}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600">{producto.categoria}</td>
-                        <td className="px-6 py-4 text-sm text-slate-700 font-semibold">{producto.cantidad}</td>
-                        <td className="px-6 py-4 text-sm text-green-600 font-semibold">${Number(producto.precio).toLocaleString('es-AR')}</td>
-                        <td className="px-6 py-4 text-sm text-blue-600 font-bold">{producto.porcentajeRecargo}%</td>
-                        <td className="px-6 py-4 text-sm text-purple-600 font-bold text-base">
-                          ${((Number(producto.precioConRecargo) || 0) * (producto.cantidad || 0)).toLocaleString(moneda === "USD" ? "en-US" : "es-AR", { minimumFractionDigits: 2 })}
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-slate-800 whitespace-nowrap">{producto.id}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700">{producto.nombre}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 whitespace-nowrap">{producto.categoria}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700 font-semibold whitespace-nowrap">{producto.cantidad}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-green-600 font-semibold whitespace-nowrap">${Number(producto.precio).toLocaleString('es-AR')}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-blue-600 font-bold whitespace-nowrap">{producto.porcentajeRecargo}%</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-purple-600 font-bold whitespace-nowrap">
+                          ${((Number(producto.precioConRecargo) || 0) * (producto.cantidad || 0)).toLocaleString(producto.moneda === "USD" ? "en-US" : "es-AR", { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${producto.estado === 'Disponible' ? 'bg-green-100 text-green-800' : producto.estado === 'Bajo Stock' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                          <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${producto.estado === 'Disponible' ? 'bg-green-100 text-green-800' : producto.estado === 'Bajo Stock' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
                             {producto.estado}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-600">{producto.proveedor}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 whitespace-nowrap">{producto.proveedor}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
 
-              <div className="bg-slate-50 px-6 py-4 border-t border-slate-200">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-slate-600">
+              <div className="bg-slate-50 px-3 sm:px-6 py-3 sm:py-4 border-t border-slate-200">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <p className="text-xs sm:text-sm text-slate-600 text-center sm:text-left">
                     Mostrando {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredProducts.length)} de {filteredProducts.length} productos
                   </p>
 
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} className="p-2 rounded-lg border border-slate-300 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                      <ChevronLeft size={20} />
+                  <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center">
+                    <button 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
+                      disabled={currentPage === 1} 
+                      className="p-2 rounded-lg border border-slate-300 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronLeft size={18} />
                     </button>
 
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -476,14 +492,22 @@ const InventoryDashboard: React.FC = () => {
                       else pageNum = currentPage - 2 + i;
 
                       return (
-                        <button key={i} onClick={() => setCurrentPage(pageNum)} className={`px-4 py-2 rounded-lg font-medium transition-colors ${currentPage === pageNum ? 'bg-indigo-600 text-white shadow-md' : 'border border-slate-300 hover:bg-white text-slate-700'}`}>
+                        <button 
+                          key={i} 
+                          onClick={() => setCurrentPage(pageNum)} 
+                          className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-xs sm:text-sm ${currentPage === pageNum ? 'bg-indigo-600 text-white shadow-md' : 'border border-slate-300 hover:bg-white text-slate-700'}`}
+                        >
                           {pageNum}
                         </button>
                       );
                     })}
 
-                    <button onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} className="p-2 rounded-lg border border-slate-300 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                      <ChevronRight size={20} />
+                    <button 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} 
+                      disabled={currentPage === totalPages} 
+                      className="p-2 rounded-lg border border-slate-300 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronRight size={18} />
                     </button>
                   </div>
                 </div>
@@ -493,10 +517,10 @@ const InventoryDashboard: React.FC = () => {
         )}
 
         {!loading && !error && productos.length === 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-12 text-center">
-            <Package size={64} className="mx-auto text-slate-300 mb-4" />
-            <h3 className="text-xl font-semibold text-slate-800 mb-2">No hay productos</h3>
-            <p className="text-slate-600">Agrega productos desde el panel de administración</p>
+          <div className="bg-white rounded-xl shadow-lg p-8 sm:p-12 text-center">
+            <Package size={48} className="mx-auto text-slate-300 mb-4" />
+            <h3 className="text-lg sm:text-xl font-semibold text-slate-800 mb-2">No hay productos</h3>
+            <p className="text-sm sm:text-base text-slate-600">Agrega productos desde el panel de administración</p>
           </div>
         )}
       </div>
