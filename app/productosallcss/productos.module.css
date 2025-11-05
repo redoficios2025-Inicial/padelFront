@@ -27,8 +27,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .errorContainer {
@@ -70,13 +74,19 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1.2rem;
-  background: #f3f4f6;
+  background: #67c8f3;
+  color: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
   margin-bottom: 1rem;
+}
+
+.backBtn:hover {
+  background: #4bbce0; /* celeste más oscuro al pasar el mouse */
+  transform: translateX(-3px);
 }
 
 .backBtn:hover {
@@ -155,6 +165,7 @@
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
+  color: #000; /* 🔹 Texto negro */
 }
 
 .checkboxLabel:hover {
@@ -191,8 +202,9 @@
 
 .productosGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 2rem;
+  left:0;
 }
 
 .productCard {
@@ -213,12 +225,12 @@
   position: absolute;
   top: 15px;
   right: 15px;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: white;
+  background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+  color: #000; /* 🔹 Texto negro para “solo destacados” */
   padding: 0.5rem 1rem;
   border-radius: 20px;
-  font-weight: 700;
-  font-size: 0.85rem;
+  font-weight: 800;
+  font-size: 0.9rem;
   z-index: 10;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
@@ -391,28 +403,6 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-.noProductos p {
-  font-size: 1.2rem;
-  color: #6b7280;
-  margin-bottom: 1.5rem;
-}
-
-.limpiarBtn {
-  padding: 0.8rem 2rem;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.limpiarBtn:hover {
-  background: #5568d3;
-  transform: translateY(-2px);
-}
-
 /* Modal */
 .modalOverlay {
   position: fixed;
@@ -466,148 +456,13 @@
   padding: 2rem;
 }
 
-.modalImage {
-  width: 100%;
-  height: 400px;
-  border-radius: 15px;
-  overflow: hidden;
-}
-
-.modalImage img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.noImageModal {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #9ca3af;
-  font-weight: 600;
-  font-size: 1.2rem;
-}
-
-.modalInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.modalHeader {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
 .modalBadge {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: white;
+  background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+  color: #000; /* 🔹 texto negro para “solo destacados” */
   padding: 0.4rem 1rem;
   border-radius: 15px;
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
-.modalCategoria {
-  background: #667eea;
-  color: white;
-  padding: 0.4rem 1rem;
-  border-radius: 15px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-}
-
-.modalTitle {
-  font-size: 2rem;
   font-weight: 800;
-  color: #1f2937;
-}
-
-.modalMarca {
-  color: #667eea;
-  font-weight: 700;
-  font-size: 1.1rem;
-  text-transform: uppercase;
-}
-
-.modalCodigo {
-  color: #9ca3af;
-  font-weight: 600;
-}
-
-.modalDescripcion {
-  background: #f9fafb;
-  padding: 1.5rem;
-  border-radius: 15px;
-}
-
-.modalDescripcion h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.modalDescripcion p {
-  color: #6b7280;
-  line-height: 1.6;
-}
-
-.modalPrecio {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  border-radius: 15px;
-}
-
-.modalPrecioTachado {
-  color: #6b7280;
-  text-decoration: line-through;
-  font-size: 1.2rem;
-}
-
-.modalDescuento {
-  background: #ef4444;
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
-.modalPrecioFinal {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #059669;
-  margin-left: auto;
-}
-
-.modalWhatsappBtn {
-  padding: 1.2rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 1.1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.8rem;
-  transition: all 0.3s;
-}
-
-.modalWhatsappBtn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+  font-size: 0.85rem;
 }
 
 /* Responsive */
@@ -631,105 +486,7 @@
   .filtrosContainer {
     grid-template-columns: 1fr;
   }
-}
 
-/* Agregar estos estilos a tu page.module.css existente */
-
-/* Botón Ver Más */
-.verMasContainer {
-  display: flex;
-  justify-content: center;
-  margin-top: 3rem;
-  padding: 2rem 0;
-}
-
-.verMasBtn {
-  padding: 1.2rem 3rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 50px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.verMasBtn:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
-}
-
-.verMasBtn:active {
-  transform: translateY(-2px);
-}
-
-/* Sin imagen placeholder */
-.noImage {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-  color: #9ca3af;
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-/* Error container */
-.errorContainer {
-  text-align: center;
-  padding: 3rem;
-  background: white;
-  border-radius: 15px;
-  margin: 2rem auto;
-  max-width: 500px;
-}
-
-.errorContainer h2 {
-  color: #ef4444;
-  margin-bottom: 1rem;
-}
-
-.retryBtn {
-  margin-top: 1rem;
-  padding: 0.8rem 2rem;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.retryBtn:hover {
-  background: #5568d3;
-  transform: translateY(-2px);
-}
-
-/* No productos */
-.noProductos {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  margin: 2rem;
-}
-
-.noProductos p {
-  font-size: 1.2rem;
-  color: #6b7280;
-}
-
-/* Responsive improvements */
-@media (max-width: 768px) {
   .verMasBtn {
     padding: 1rem 2rem;
     font-size: 1rem;
