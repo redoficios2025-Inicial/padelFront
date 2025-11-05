@@ -506,7 +506,7 @@ tr:nth-child(even) { background-color: #f1f5f9; }
                       <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">Marca</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  {/* <tbody className="divide-y divide-slate-200">
                     {currentProducts.map((producto, idx) => (
                       <tr key={producto._id} className={`hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}>
                         <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-slate-800 whitespace-nowrap">{producto.id}</td>
@@ -526,7 +526,36 @@ tr:nth-child(even) { background-color: #f1f5f9; }
                         <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 whitespace-nowrap">{producto.proveedor}</td>
                       </tr>
                     ))}
-                  </tbody>
+                  </tbody> */}
+
+
+
+                  <tbody className="divide-y divide-slate-200">
+  {currentProducts.map((producto, idx) => (
+    <tr key={producto._id} className={`hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}>
+      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-slate-800 whitespace-nowrap">{producto.id}</td>
+      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700">{producto.nombre}</td>
+      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 whitespace-nowrap">{producto.categoria}</td>
+      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700 font-semibold whitespace-nowrap">{producto.cantidad}</td>
+      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-green-600 font-semibold whitespace-nowrap">${Number(producto.precio).toLocaleString('es-AR')}</td>
+      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-blue-600 font-bold whitespace-nowrap">{producto.porcentajeRecargo}%</td>
+      
+      {/* Precio final por unidad con recargo */}
+      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-purple-600 font-bold whitespace-nowrap">
+        ${((Number(producto.precio) || 0) * (1 + (Number(producto.porcentajeRecargo) || 0) / 100))
+          .toLocaleString(producto.moneda === "USD" ? "en-US" : "es-AR", { minimumFractionDigits: 2 })}
+      </td>
+
+      <td className="px-3 sm:px-6 py-3 sm:py-4">
+        <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${producto.estado === 'Disponible' ? 'bg-green-100 text-green-800' : producto.estado === 'Bajo Stock' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+          {producto.estado}
+        </span>
+      </td>
+      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 whitespace-nowrap">{producto.proveedor}</td>
+    </tr>
+  ))}
+</tbody>
+
                 </table>
               </div>
 
@@ -590,3 +619,4 @@ tr:nth-child(even) { background-color: #f1f5f9; }
 };
 
 export default InventoryDashboard;
+
