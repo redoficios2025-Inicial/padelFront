@@ -649,37 +649,6 @@ export default function ProductosPage() {
             )}
 
             <Footer />
-
-            {/* 🔹 Estilos adicionales para inputs y responsividad */}
-            <style jsx>{`
-                .inputBlack {
-                    color: #000;
-                    background-color: #fff;
-                    border: 1px solid #ccc;
-                    padding: 8px;
-                    border-radius: 6px;
-                    font-size: 14px;
-                    width: 100%;
-                    max-width: 100%;
-                }
-
-                .inputBlack::placeholder {
-                    color: #555;
-                }
-
-                @media (max-width: 768px) {
-                    .${styles.filtrosContainer} {
-                        flex-direction: column;
-                        align-items: stretch;
-                        gap: 10px;
-                    }
-                    .inputBlack {
-                        width: 100%;
-                        font-size: 16px;
-                    }
-                }
-            `}</style>
         </div>
     );
 }
-
