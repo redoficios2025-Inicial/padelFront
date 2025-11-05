@@ -500,4 +500,14 @@
     padding: 1rem 2rem;
     font-size: 1rem;
   }
+  
+  .inputBlack,
+  .searchInput,
+  .selectInput {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    color: #000;
+  }
 }
+
