@@ -1,5 +1,21 @@
-/* productos.module.css */
+/* 🔹 Inputs con texto negro y que no se desborden */
+.inputBlack {
+  color: #000;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
 
+.inputBlack::placeholder {
+  color: #555;
+}
+
+/* Productos.module.css completo con ajustes previos */
 .container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -27,12 +43,8 @@
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .errorContainer {
@@ -40,7 +52,8 @@
   padding: 3rem;
   background: white;
   border-radius: 15px;
-  margin: 2rem;
+  margin: 2rem auto;
+  max-width: 500px;
 }
 
 .retryBtn {
@@ -85,12 +98,7 @@
 }
 
 .backBtn:hover {
-  background: #4bbce0; /* celeste más oscuro al pasar el mouse */
-  transform: translateX(-3px);
-}
-
-.backBtn:hover {
-  background: #e5e7eb;
+  background: #4bbce0;
   transform: translateX(-3px);
 }
 
@@ -153,6 +161,7 @@
   outline: none;
   font-size: 1rem;
   padding: 0.3rem;
+  color: #000; /* 🔹 texto negro */
 }
 
 .checkboxLabel {
@@ -165,7 +174,7 @@
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
-  color: #000; /* 🔹 Texto negro */
+  color: #000;
 }
 
 .checkboxLabel:hover {
@@ -204,7 +213,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 2rem;
-  left:0;
 }
 
 .productCard {
@@ -226,7 +234,7 @@
   top: 15px;
   right: 15px;
   background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
-  color: #000; /* 🔹 Texto negro para “solo destacados” */
+  color: #000; /* 🔹 solo destacados negro */
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-weight: 800;
@@ -234,6 +242,7 @@
   z-index: 10;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
+
 
 .descuentoBadge {
   position: absolute;
