@@ -1,5 +1,6 @@
 // 'use client';
 
+
 // import { useState, useEffect } from 'react';
 // import { useRouter } from 'next/navigation';
 // import { FaWhatsapp, FaSearch, FaArrowLeft, FaStar, FaFilter } from 'react-icons/fa';
@@ -652,3 +653,4 @@ export default function ProductosPage() {
         </div>
     );
 }
+
