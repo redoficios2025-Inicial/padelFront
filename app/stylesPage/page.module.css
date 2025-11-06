@@ -160,19 +160,33 @@
 
 /* Product Card */
 .productCard {
-  background: white;
-  border-radius: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* distribuye el contenido verticalmente */
+  height: 100%; /* para que todas las tarjetas tengan la misma altura */
+  border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  background-color: #fff;
 }
+
+
 
 .productCard:hover {
   transform: translateY(-10px);
   box-shadow: 0 20px 50px rgba(102, 126, 234, 0.25);
 }
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* ocupa todo el espacio disponible */
+  padding: 1rem;
+}
 
+.btnContainer {
+  margin-top: auto; /* fuerza que el botón se quede abajo */
+  text-align: center;
+}
 /* Badges */
 .badge {
   position: absolute;
