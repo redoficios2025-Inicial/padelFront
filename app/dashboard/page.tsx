@@ -1659,7 +1659,6 @@ tr:nth-child(even) {
                   <div>
                     <p className="text-xs sm:text-sm text-slate-600 mb-1">Bajo Stock</p>
                     <p className="text-2xl sm:text-3xl font-bold text-slate-800">{stats.bajoStock}</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-slate-800">{stats.bajoStock}</p>
                     <p className="text-xs text-slate-500 mt-1">Stock: {stats.stockBajoStock} unidades</p>
                   </div>
                   <div className="bg-yellow-100 p-2 sm:p-3 rounded-lg">
@@ -1854,4 +1853,5 @@ tr:nth-child(even) {
 };
 
 export default InventoryDashboard;
+
 
