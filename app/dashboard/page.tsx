@@ -944,7 +944,6 @@
 // export default InventoryDashboard;
 
 
-
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -1040,7 +1039,7 @@ const InventoryDashboard: React.FC = () => {
   useEffect(() => {
     const loadLogo = async () => {
       try {
-        const response = await fetch('/assets/europadel2.jpg');
+        const response = await fetch('./assets/europadel2.jpg');
         const blob = await response.blob();
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -1057,7 +1056,7 @@ const InventoryDashboard: React.FC = () => {
   const formatearNumero = (numero: number | string, moneda: 'ARS' | 'USD' = 'ARS'): string => {
     const num = typeof numero === 'string' ? parseFloat(numero) : numero;
     if (isNaN(num)) return '0,00';
-    
+
     if (moneda === 'USD') {
       return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
@@ -1112,7 +1111,7 @@ const InventoryDashboard: React.FC = () => {
 
   const downloadExcel = (): void => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
+
     const headers = ['ID', 'Nombre', 'Categoría', 'Cant.', 'Precio Base', '% Rec.', 'Precio Final', 'Estado', 'Marca'];
 
     let htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
@@ -1123,7 +1122,6 @@ const InventoryDashboard: React.FC = () => {
 <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
 </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
 <style>
-
 .logo-header {
   text-align: center;
   padding: 4px;
@@ -1134,6 +1132,7 @@ const InventoryDashboard: React.FC = () => {
   max-width: 50px;
   max-height: 25px;
 }
+
 
 table { 
   border-collapse: collapse; 
@@ -1198,14 +1197,15 @@ tr:nth-child(even) {
 }
 .logo-header {
   text-align: center;
-  padding: 10px;
+  padding: 4px;
 }
 .logo-header img {
-  max-width: 120px;
-  max-height: 60px;
+  width: auto;
   height: auto;
-  object-fit: contain;
+  max-width: 50px;
+  max-height: 25px;
 }
+
 </style>
 </head>
 <body>
@@ -1223,10 +1223,10 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
       const precioBase = Number(p.precio);
       const porcentajeRecargo = Number(p.porcentajeRecargo);
       const precioFinal = precioBase * (1 + porcentajeRecargo / 100);
-      
+
       const precioFormateado = formatearNumero(precioBase, p.moneda);
       const precioFinalFormateado = formatearNumero(precioFinal, p.moneda);
-      
+
       htmlContent += `<tr>
 <td style="font-weight: bold;">${p.id}</td>
 <td class="nombre-col">${p.nombre}</td>
@@ -1244,27 +1244,27 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
 <p style="margin-top: 12px; text-align: center; color: #64748b; font-size: 9pt;">Total productos en página: ${currentProducts.length}</p>
 </body></html>`;
 
-    const blob = new Blob(['\ufeff', htmlContent], { 
+    const blob = new Blob(['\ufeff', htmlContent], {
       type: isMobile ? 'application/vnd.ms-excel;charset=utf-8' : 'application/vnd.ms-excel'
     });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `lista_precios_europadel_pag${currentPage}.xls`;
-    
+
     if (isMobile) {
       link.target = '_blank';
     }
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     setTimeout(() => URL.revokeObjectURL(link.href), 100);
   };
 
   const downloadWord = (): void => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
+
     let content = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -1281,6 +1281,8 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
 </xml>
 <![endif]-->
 <style>
+
+
 @page WordSection1 {
   size: 11.0in 8.5in;
   margin: 0.5in;
@@ -1295,14 +1297,15 @@ body {
 }
 .logo-header {
   text-align: center;
-  margin-bottom: 12pt;
+  padding: 4px;
 }
 .logo-header img {
-  max-width: 120pt;
-  max-height: 60pt;
+  width: auto;
   height: auto;
-  object-fit: contain;
+  max-width: 50px;
+  max-height: 25px;
 }
+
 h1 { 
   color: #4f46e5;
   text-align: center;
@@ -1412,10 +1415,10 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
       const precioBase = Number(p.precio);
       const porcentajeRecargo = Number(p.porcentajeRecargo);
       const precioFinal = precioBase * (1 + porcentajeRecargo / 100);
-      
+
       const precioFormateado = formatearNumero(precioBase, p.moneda);
       const precioFinalFormateado = formatearNumero(precioFinal, p.moneda);
-      
+
       content += `<tr>
 <td><b>${p.id}</b></td>
 <td class="nombre-col">${p.nombre}</td>
@@ -1436,21 +1439,21 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
 </body>
 </html>`;
 
-    const blob = new Blob(['\ufeff', content], { 
+    const blob = new Blob(['\ufeff', content], {
       type: isMobile ? 'application/msword;charset=utf-8' : 'application/msword'
     });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `lista_precios_europadel_pag${currentPage}.doc`;
-    
+
     if (isMobile) {
       link.target = '_blank';
     }
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     setTimeout(() => URL.revokeObjectURL(link.href), 100);
   };
 
@@ -1462,6 +1465,16 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lista de Precios Europadel</title>
 <style>
+.logo-header {
+  text-align: center;
+  padding: 4px;
+}
+.logo-header img {
+  width: auto;
+  height: auto;
+  max-width: 50px;
+  max-height: 25px;
+}
 @page { 
   size: landscape;
   margin: 1cm;
@@ -1591,10 +1604,10 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
       const precioBase = Number(p.precio);
       const porcentajeRecargo = Number(p.porcentajeRecargo);
       const precioFinal = precioBase * (1 + porcentajeRecargo / 100);
-      
+
       const precioFormateado = formatearNumero(precioBase, p.moneda);
       const precioFinalFormateado = formatearNumero(precioFinal, p.moneda);
-      
+
       content += `<tr>
 <td><strong>${p.id}</strong></td>
 <td class="nombre-col">${p.nombre}</td>
@@ -1619,7 +1632,7 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
     const blob = new Blob([content], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const printWindow = window.open(url, '_blank');
-    
+
     if (printWindow) {
       printWindow.onload = () => {
         setTimeout(() => {
@@ -1629,7 +1642,7 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
     } else {
       alert('Por favor, permite las ventanas emergentes para descargar el PDF');
     }
-    
+
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
@@ -1690,6 +1703,7 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
               <AlertCircle size={24} className="flex-shrink-0 mt-1" />
               <div className="flex-1">
                 <h3 className="font-semibold text-sm sm:text-base">Error al cargar productos</h3>
+
                 <p className="text-xs sm:text-sm mt-1">{error}</p>
                 <p className="text-xs mt-1 text-red-600">Verifica que el servidor esté corriendo en {API_URL}</p>
                 <button onClick={cargarProductos} className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs sm:text-sm">
@@ -1728,7 +1742,6 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
                   </div>
                 </div>
               </div>
-
               <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4 border-red-500">
                 <div className="flex items-center justify-between">
                   <div>
@@ -1916,3 +1929,4 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
 };
 
 export default InventoryDashboard;
+
