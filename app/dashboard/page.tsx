@@ -1836,17 +1836,5 @@ tr:nth-child(even) {
   );
 };
 
-export default InventoryDashboard;>{stats.disponible}</p>
-                    <p className="text-xs text-slate-500 mt-1">Stock: {stats.stockDisponibles} unidades</p>
-                  </div>
-                  <div className="bg-green-100 p-2 sm:p-3 rounded-lg">
-                    <Package className="text-green-600" size={20} />
-                  </div>
-                </div>
-              </div>
+export default InventoryDashboard;>
 
-              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4 border-yellow-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs sm:text-sm text-slate-600 mb-1">Bajo Stock</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-slate-800"
