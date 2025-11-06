@@ -943,13 +943,12 @@
 
 // export default InventoryDashboard;
 
-
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Download, Package, Search, ChevronLeft, ChevronRight, Filter, RefreshCw, AlertCircle } from 'lucide-react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://padel-back-kohl.vercel.app/api';
+const API_URL = 'https://padel-back-kohl.vercel.app/api';
 
 interface Recargos {
   transporte?: number;
@@ -1033,25 +1032,7 @@ const InventoryDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('Todas');
   const [moneda, setMoneda] = useState<"ARS" | "USD">("ARS");
-  const [logoBase64, setLogoBase64] = useState<string>('');
   const itemsPerPage = 50;
-
-  useEffect(() => {
-    const loadLogo = async () => {
-      try {
-        const response = await fetch('./assets/europadel2.jpg');
-        const blob = await response.blob();
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setLogoBase64(reader.result as string);
-        };
-        reader.readAsDataURL(blob);
-      } catch (err) {
-        console.error('Error cargando logo:', err);
-      }
-    };
-    loadLogo();
-  }, []);
 
   const formatearNumero = (numero: number | string, moneda: 'ARS' | 'USD' = 'ARS'): string => {
     const num = typeof numero === 'string' ? parseFloat(numero) : numero;
@@ -1122,18 +1103,6 @@ const InventoryDashboard: React.FC = () => {
 <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
 </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
 <style>
-.logo-header {
-  text-align: center;
-  padding: 4px;
-}
-.logo-header img {
-  width: auto;
-  height: auto;
-  max-width: 50px;
-  max-height: 25px;
-}
-
-
 table { 
   border-collapse: collapse; 
   width: 100%; 
@@ -1195,21 +1164,9 @@ tr:nth-child(even) {
   text-align: left;
   max-width: 300px;
 }
-.logo-header {
-  text-align: center;
-  padding: 4px;
-}
-.logo-header img {
-  width: auto;
-  height: auto;
-  max-width: 50px;
-  max-height: 25px;
-}
-
 </style>
 </head>
 <body>
-${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel Logo" /></div>` : ''}
 <h2 style="color: #4f46e5; text-align: center; font-size: 16pt; font-weight: bold; margin: 12px 0;">LISTA DE PRECIOS EUROPADEL</h2>
 <p style="text-align: center; color: #64748b; font-size: 10pt; margin: 8px 0;">Página ${currentPage} - Generado: ${new Date().toLocaleDateString('es-AR')}</p>
 <table border="1" cellspacing="0" cellpadding="0">
@@ -1281,8 +1238,6 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
 </xml>
 <![endif]-->
 <style>
-
-
 @page WordSection1 {
   size: 11.0in 8.5in;
   margin: 0.5in;
@@ -1295,17 +1250,6 @@ body {
   font-family: Calibri, Arial, sans-serif;
   font-size: 11pt;
 }
-.logo-header {
-  text-align: center;
-  padding: 4px;
-}
-.logo-header img {
-  width: auto;
-  height: auto;
-  max-width: 50px;
-  max-height: 25px;
-}
-
 h1 { 
   color: #4f46e5;
   text-align: center;
@@ -1391,7 +1335,6 @@ p.footer {
 </head>
 <body>
 <div class="WordSection1">
-${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel Logo" /></div>` : ''}
 <h1>LISTA DE PRECIOS EUROPADEL</h1>
 <p class="subtitle">Página ${currentPage} - Generado el ${new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
 <table border="1" cellspacing="0" cellpadding="0">
@@ -1465,16 +1408,6 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lista de Precios Europadel</title>
 <style>
-.logo-header {
-  text-align: center;
-  padding: 4px;
-}
-.logo-header img {
-  width: auto;
-  height: auto;
-  max-width: 50px;
-  max-height: 25px;
-}
 @page { 
   size: landscape;
   margin: 1cm;
@@ -1489,16 +1422,6 @@ body {
   font-family: Arial, sans-serif;
   padding: 20px;
   margin: 0;
-}
-.logo-header {
-  text-align: center;
-  margin-bottom: 15px;
-}
-.logo-header img {
-  max-width: 120px;
-  max-height: 60px;
-  height: auto;
-  object-fit: contain;
 }
 h1 { 
   color: #4f46e5;
@@ -1580,7 +1503,6 @@ tr:nth-child(even) {
 </style>
 </head>
 <body>
-${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel Logo" /></div>` : ''}
 <h1>📦 LISTA DE PRECIOS EUROPADEL</h1>
 <p class="subtitle">Página ${currentPage} - ${new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
 <table>
@@ -1703,7 +1625,6 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
               <AlertCircle size={24} className="flex-shrink-0 mt-1" />
               <div className="flex-1">
                 <h3 className="font-semibold text-sm sm:text-base">Error al cargar productos</h3>
-
                 <p className="text-xs sm:text-sm mt-1">{error}</p>
                 <p className="text-xs mt-1 text-red-600">Verifica que el servidor esté corriendo en {API_URL}</p>
                 <button onClick={cargarProductos} className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs sm:text-sm">
@@ -1721,19 +1642,6 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs sm:text-sm text-slate-600 mb-1">Disponibles</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-slate-800">{stats.disponible}</p>
-                    <p className="text-xs text-slate-500 mt-1">Stock: {stats.stockDisponibles} unidades</p>
-                  </div>
-                  <div className="bg-green-100 p-2 sm:p-3 rounded-lg">
-                    <Package className="text-green-600" size={20} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4 border-yellow-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs sm:text-sm text-slate-600 mb-1">Bajo Stock</p>
                     <p className="text-2xl sm:text-3xl font-bold text-slate-800">{stats.bajoStock}</p>
                     <p className="text-xs text-slate-500 mt-1">Stock: {stats.stockBajoStock} unidades</p>
                   </div>
@@ -1928,5 +1836,17 @@ ${logoBase64 ? `<div class="logo-header"><img src="${logoBase64}" alt="Europadel
   );
 };
 
-export default InventoryDashboard;
+export default InventoryDashboard;>{stats.disponible}</p>
+                    <p className="text-xs text-slate-500 mt-1">Stock: {stats.stockDisponibles} unidades</p>
+                  </div>
+                  <div className="bg-green-100 p-2 sm:p-3 rounded-lg">
+                    <Package className="text-green-600" size={20} />
+                  </div>
+                </div>
+              </div>
 
+              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4 border-yellow-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs sm:text-sm text-slate-600 mb-1">Bajo Stock</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-slate-800"
